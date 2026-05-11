@@ -58,4 +58,4 @@ def handle_posts():
             return jsonify({"error": str(e)}), 500
 
 # This is the line Vercel actually looks for
-main = app
+app = app
