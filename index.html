@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Neon Chronicles</title>
+    <style>
+        :root {
+            --neon-green: #00ff66;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glow: 0 0 12px rgba(255, 255, 255, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050505;
+            background-image: radial-gradient(circle at 50% top, rgba(0, 200, 50, 0.25) 0%, #050505 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Header & Navigation */
+        .site-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-pill {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            box-shadow: var(--glow);
+            border-radius: 50px;
+            padding: 0.8rem 3rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            box-shadow: var(--glow);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-img-placeholder {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(45deg, #1a4a38, #0a2e3f);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: #d0d0d0;
+            line-height: 1.5;
+            margin: 0 0 1.5rem 0;
+            flex-grow: 1;
+        }
+
+        /* Card Buttons & Tags */
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--text-main);
+            color: var(--text-main);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-start;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: var(--text-main);
+            color: #000;
+        }
+
+        .tag-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        .tag {
+            border: 1px solid var(--text-main);
+            border-radius: 50px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* Footer */
+        .footer-bar {
+            background: rgba(10, 40, 20, 0.8);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            display: inline-block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-bar { flex-direction: column; align-items: center; }
+            .nav-pill { width: 80%; text-align: center; }
+            .footer-bar { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="site-title">THE NEON CHRONICLES</div>
+        
+        <nav class="nav-bar">
+            <a href="#" class="nav-pill">LATEST</a>
+            <a href="#" class="nav-pill">CATEGORIES</a>
+            <a href="#" class="nav-pill">ABOUT</a>
+            <a href="#" class="nav-pill">SEARCH</a>
+        </nav>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-img-placeholder" style="background: linear-gradient(45deg, #0f3e4a, #1a8f99);">Cityscape Image</div>
+                <h2>TECH EXPLORED</h2>
+                <div class="meta">Date 24, 2024</div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonumy eirmod tempor invidunt ut labore.</p>
+                <div class="tag-group">
+                    <span class="tag">TAGGS</span>
+                    <span class="tag">TECH EXPLORED</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>DESIGN TRENDS 2024</h2>
+                <p>Title, summary of dolor sit amet, consectetur adipiscing elit, sed diam nonmed texssiers and more.</p>
+                <div class="meta">Title summary | Metadata</div>
+                <div class="tag-group" style="margin-top: 1rem;">
+                    <span class="tag">ROUNDEDS</span>
+                    <span class="tag">BUTTONS</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img-placeholder" style="background: linear-gradient(45deg, #2a2a2a, #4a4a4a);">Robot Arm Image</div>
+                <h2>AI INNOVATIONS</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam...</p>
+                <div class="tag-group" style="border: none; gap: 10px;">
+                    <span style="font-size: 1.2rem;">💬</span>
+                    <span style="font-size: 1.2rem;">✖</span>
+                    <span style="font-size: 1.2rem;">🌐</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>THE DIGITAL AGE</h2>
+                <p>Headline, and grows digital is for deveopeter, paragraph, conslaw, and and compure metadata at colorm vekyuanar of their cators.</p>
+                <div class="meta">Date 14, 2024</div>
+                <button class="btn-outline">READ MORE</button>
+            </div>
+            
+            <div class="card">
+                <h2>DESIGN<br>DOATRS<br>2024</h2>
+            </div>
+
+            <div class="card">
+                <div class="card-img-placeholder" style="background: linear-gradient(45deg, #4a148c, #aa00ff);">Workspace Setup Image</div>
+                <h2>VIRTUAL REALITY</h2>
+            </div>
+            
+             <div class="card">
+                <h2>THE DIGITAL AGE</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+
+             <div class="card">
+                <div class="card-img-placeholder" style="background: linear-gradient(45deg, #001f3f, #0074D9);">Server Room Image</div>
+                <h2>TECH EXPLORED</h2>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-bar">
+        <div>THE NEON CHRONICLES © 2024 | DESIGNED FOR BLOGGERS</div>
+        <div class="social-icons">
+            <span class="social-circle"></span>
+            <span class="social-circle"></span>
+            <span class="social-circle"></span>
+            <span class="social-circle"></span>
+        </div>
+    </footer>
+
+</body>
+</html>
