@@ -31,6 +31,8 @@
             margin: 0 auto;
             padding: 2rem;
             flex: 1;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Header & Navigation */
@@ -80,93 +82,6 @@
             margin-bottom: 3rem;
         }
 
-        /* Glass Cards */
-        .card {
-            background: var(--glass-bg);
-            border: 2px solid var(--glass-border);
-            box-shadow: var(--glow);
-            border-radius: 20px;
-            padding: 1.5rem;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-img-placeholder {
-            width: 100%;
-            height: 160px;
-            background: linear-gradient(45deg, #1a4a38, #0a2e3f);
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.5);
-        }
-
-        .card h2 {
-            font-size: 1.6rem;
-            margin: 0 0 0.5rem 0;
-            line-height: 1.2;
-            text-transform: uppercase;
-        }
-
-        .meta {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            color: #d0d0d0;
-            line-height: 1.5;
-            margin: 0 0 1.5rem 0;
-            flex-grow: 1;
-        }
-
-        /* Card Buttons & Tags */
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--text-main);
-            color: var(--text-main);
-            border-radius: 50px;
-            padding: 0.5rem 1.5rem;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            align-self: flex-start;
-            text-transform: uppercase;
-            transition: background 0.2s;
-        }
-
-        .btn-outline:hover {
-            background: var(--text-main);
-            color: #000;
-        }
-
-        .tag-group {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: auto;
-        }
-
-        .tag {
-            border: 1px solid var(--text-main);
-            border-radius: 50px;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
-
         /* Footer */
         .footer-bar {
             background: rgba(10, 40, 20, 0.8);
@@ -213,10 +128,10 @@
             <a href="#" class="nav-pill">SEARCH</a>
         </nav>
 
-        <div class="grid" id="posts-grid">
-        </div>
+        <div class="grid" id="posts-grid"></div>
 
-</div>
+    </div>
+
     <footer class="footer-bar">
         <div>THE NEON CHRONICLES © 2024 | DESIGNED FOR BLOGGERS</div>
         <div class="social-icons">
@@ -227,5 +142,61 @@
         </div>
     </footer>
 
+    <script>
+        async function fetchAndDisplayPosts() {
+            const grid = document.getElementById('posts-grid');
+            
+            try {
+                // 1. Fetch data from your Python backend
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+                
+                // 2. Clear out any loading text
+                grid.innerHTML = '';
+                
+                // 3. Loop through every post and build the HTML
+                posts.forEach(post => {
+                    // Create the glass card
+                    const card = document.createElement('div');
+                    card.style.background = 'rgba(255, 255, 255, 0.04)';
+                    card.style.backdropFilter = 'blur(12px)';
+                    card.style.border = '2px solid rgba(255, 255, 255, 0.9)';
+                    card.style.borderRadius = '20px';
+                    card.style.padding = '1.5rem';
+                    card.style.boxShadow = '0 0 12px rgba(255, 255, 255, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.2)';
+                    card.style.color = '#fff';
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';
+                    card.style.gap = '1rem';
+                    card.style.transition = 'transform 0.3s ease';
+                    
+                    // Hover effect logic
+                    card.onmouseover = () => card.style.transform = 'translateY(-5px)';
+                    card.onmouseout = () => card.style.transform = 'translateY(0)';
+
+                    let contentHTML = '';
+                    
+                    // If there is an image, put it at the top
+                    if (post.image_url) {
+                        contentHTML += `<img src="${post.image_url}" alt="Cover" style="width: 100%; border-radius: 10px; object-fit: cover; max-height: 250px;">`;
+                    }
+                    
+                    // Add the title and text below
+                    contentHTML += `<h2 style="margin: 0; color: #00ff66; text-transform: uppercase; letter-spacing: 1px; font-size: 1.6rem; line-height: 1.2;">${post.title}</h2>`;
+                    contentHTML += `<p style="margin: 0; line-height: 1.6; opacity: 0.9; font-size: 0.95rem; color: #d0d0d0;">${post.content}</p>`;
+                    
+                    card.innerHTML = contentHTML;
+                    grid.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error("Error loading the grid:", error);
+                grid.innerHTML = '<div style="color: #ff4444; text-align: center; width: 100%;">Failed to load transmissions from the network.</div>';
+            }
+        }
+
+        // Run this function the second the page loads!
+        window.onload = fetchAndDisplayPosts;
+    </script>
 </body>
 </html>
