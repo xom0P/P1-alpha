@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Admin | Create Post</title>
+    <title>Neon Admin | Command Center</title>
     <style>
         :root {
             --neon-green: #00ff66;
@@ -14,13 +14,25 @@
         }
 
         body {
-            margin: 0; padding: 0;
+            margin: 0; padding: 2rem;
             font-family: 'Segoe UI', sans-serif;
             background-color: #050505;
             background-image: radial-gradient(circle at 50% top, rgba(0, 200, 50, 0.25) 0%, #050505 40%);
             color: var(--text-main);
-            min-height: 100vh; display: flex;
-            align-items: center; justify-content: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            box-sizing: border-box;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-top: 2rem;
         }
 
         .admin-card {
@@ -28,25 +40,26 @@
             border: 2px solid var(--glass-border);
             box-shadow: var(--glow);
             border-radius: 20px;
-            padding: 2.5rem; width: 100%; max-width: 600px;
+            padding: 2.5rem; 
             backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
         }
 
-        h1 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
+        h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; color: var(--neon-green); }
 
+        /* Left Side: Form */
         .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; }
-        
         label { margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-green); }
-
+        
         input[type="text"], textarea, input[type="file"] {
             background: rgba(0,0,0,0.5);
             border: 1px solid var(--glass-border);
             color: white; padding: 1rem; border-radius: 10px;
             font-family: inherit;
         }
-
         textarea { resize: vertical; min-height: 150px; }
-        
         input:focus, textarea:focus { outline: none; border-color: var(--neon-green); box-shadow: 0 0 10px rgba(0,255,102,0.3); }
 
         .btn-submit {
@@ -55,68 +68,189 @@
             cursor: pointer; text-transform: uppercase; width: 100%; transition: all 0.3s;
             margin-top: 1rem;
         }
-
         .btn-submit:hover { background: var(--text-main); color: #000; box-shadow: var(--glow); }
-        
         #status { text-align: center; margin-top: 1rem; font-size: 0.9rem; }
+
+        /* Right Side: Scrollable List */
+        .post-list {
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Custom Scrollbar for Neon Vibe */
+        .post-list::-webkit-scrollbar { width: 8px; }
+        .post-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+        .post-list::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 10px; }
+
+        .post-item {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-item-info strong { color: white; display: block; margin-bottom: 0.3rem; }
+        .post-item-info span { color: #aaa; font-size: 0.8rem; }
+
+        .btn-edit {
+            background: rgba(0, 255, 102, 0.2);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .btn-edit:hover { background: var(--neon-green); color: black; }
+
+        @media (max-width: 900px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .admin-card { max-height: none; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="admin-card">
-        <h1>Create Protocol</h1>
-        <form id="postForm">
-            <div class="form-group">
-                <label>Cover Image (Optional)</label>
-                <input type="file" id="imageInput" accept="image/*">
-            </div>
-            
-            <div class="form-group">
-                <label>Transmission Title</label>
-                <input type="text" id="titleInput" placeholder="Enter post title..." required>
-            </div>
+    <div class="dashboard-layout">
+        
+        <div class="admin-card">
+            <h1 id="form-title">Create Protocol</h1>
+            <form id="postForm">
+                <input type="hidden" id="postIdInput">
+                
+                <div class="form-group">
+                    <label>Cover Image (Optional)</label>
+                    <input type="file" id="imageInput" accept="image/*">
+                    <small id="imageHelpText" style="color: #aaa; margin-top: 5px; display: none;">Leave blank to keep existing image.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Transmission Title</label>
+                    <input type="text" id="titleInput" placeholder="Enter post title..." required>
+                </div>
 
-            <div class="form-group">
-                <label>Data Payload (Content)</label>
-                <textarea id="contentInput" placeholder="Write your post here..." required></textarea>
-            </div>
+                <div class="form-group">
+                    <label>Data Payload (Content)</label>
+                    <textarea id="contentInput" placeholder="Write your post here..." required></textarea>
+                </div>
 
-            <button type="button" class="btn-submit" onclick="submitPost()">Upload to Grid</button>
-            <div id="status"></div>
-        </form>
+                <button type="button" class="btn-submit" id="submitBtn" onclick="submitPost()">Upload to Grid</button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="#" id="cancelEditBtn" style="color: #ff4444; display: none; text-decoration: none; font-size: 0.9rem;" onclick="resetForm()">Cancel Edit</a>
+                </div>
+                <div id="status"></div>
+            </form>
+        </div>
+
+        <div class="admin-card">
+            <h2>Active Transmissions</h2>
+            <div class="post-list" id="postList">
+                <div style="text-align: center; color: #aaa;">Loading network data...</div>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // Load posts when the admin page opens
+        window.onload = fetchAdminPosts;
+
+        async function fetchAdminPosts() {
+            const listDiv = document.getElementById('postList');
+            try {
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+                
+                listDiv.innerHTML = '';
+                
+                if (posts.length === 0) {
+                    listDiv.innerHTML = '<div style="text-align: center; color: #aaa;">No transmissions found.</div>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const postHTML = `
+                        <div class="post-item">
+                            <div class="post-item-info">
+                                <strong>${post.title}</strong>
+                                <span>ID: ${post.id.substring(0, 8)}...</span>
+                            </div>
+                            <button class="btn-edit" onclick="editPost('${post.id}', '${post.title.replace(/'/g, "\\'")}', '${post.content.replace(/'/g, "\\'")}', '${post.image_url || ''}')">Edit</button>
+                        </div>
+                    `;
+                    listDiv.innerHTML += postHTML;
+                });
+            } catch (error) {
+                listDiv.innerHTML = '<div style="color: #ff4444; text-align: center;">Failed to load data.</div>';
+            }
+        }
+
+        // Triggered when clicking "Edit" in the right column
+        function editPost(id, title, content, imageUrl) {
+            document.getElementById('form-title').innerText = "Edit Protocol";
+            document.getElementById('submitBtn').innerText = "Update Grid";
+            document.getElementById('cancelEditBtn').style.display = "inline-block";
+            document.getElementById('imageHelpText').style.display = "block";
+            
+            document.getElementById('postIdInput').value = id;
+            document.getElementById('titleInput').value = title;
+            document.getElementById('contentInput').value = content;
+        }
+
+        // Cancels edit mode and resets the form to "Create" mode
+        function resetForm() {
+            document.getElementById('postForm').reset();
+            document.getElementById('form-title').innerText = "Create Protocol";
+            document.getElementById('submitBtn').innerText = "Upload to Grid";
+            document.getElementById('cancelEditBtn').style.display = "none";
+            document.getElementById('imageHelpText').style.display = "none";
+            document.getElementById('postIdInput').value = "";
+            document.getElementById('status').innerText = "";
+        }
+
         async function submitPost() {
             const statusDiv = document.getElementById('status');
-            const submitBtn = document.querySelector('.btn-submit');
+            const submitBtn = document.getElementById('submitBtn');
             
             statusDiv.style.color = "white";
             statusDiv.innerText = "Transmitting data... Please wait.";
             submitBtn.disabled = true;
 
+            const postId = document.getElementById('postIdInput').value;
             const fileInput = document.getElementById('imageInput').files[0];
             const title = document.getElementById('titleInput').value;
             const content = document.getElementById('contentInput').value;
 
             const formData = new FormData();
+            // If postId exists, tell the backend this is an update
+            if (postId) formData.append('id', postId);
             formData.append('title', title);
             formData.append('content', content);
-            if (fileInput) {
-                formData.append('image', fileInput);
-            }
+            if (fileInput) formData.append('image', fileInput);
 
             try {
+                // Determine if we use POST (create) or PUT (update)
+                const methodType = postId ? 'PUT' : 'POST';
+
                 const response = await fetch('/api/posts', {
-                    method: 'POST',
+                    method: methodType,
                     body: formData
                 });
 
                 const result = await response.json();
                 if (response.ok) {
                     statusDiv.style.color = "#00ff66";
-                    statusDiv.innerText = "Transmission successful! Post uploaded to the grid.";
-                    document.getElementById('postForm').reset();
+                    statusDiv.innerText = postId ? "Transmission Updated!" : "Transmission successful!";
+                    resetForm();
+                    fetchAdminPosts(); // Refresh the list on the right
                 } else {
                     statusDiv.style.color = "#ff4444";
                     statusDiv.innerText = "Error: " + (result.error || "Failed to upload.");
