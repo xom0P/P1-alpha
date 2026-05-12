@@ -181,7 +181,7 @@
                         <div class="post-item">
                             <div class="post-item-info">
                                 <strong>${post.title}</strong>
-                                <span>ID: ${post.id.substring(0, 8)}...</span>
+                                <span>ID: ${post.id}</span>
                             </div>
                             <button class="btn-edit" onclick="editPost('${post.id}', '${post.title.replace(/'/g, "\\'")}', '${post.content.replace(/'/g, "\\'")}', '${post.image_url || ''}')">Edit</button>
                         </div>
@@ -189,10 +189,10 @@
                     listDiv.innerHTML += postHTML;
                 });
             } catch (error) {
+                console.error("Grid error:", error); // Added this to help with any future debugging!
                 listDiv.innerHTML = '<div style="color: #ff4444; text-align: center;">Failed to load data.</div>';
             }
         }
-
         // Triggered when clicking "Edit" in the right column
         function editPost(id, title, content, imageUrl) {
             document.getElementById('form-title').innerText = "Edit Protocol";
