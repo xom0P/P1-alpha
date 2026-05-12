@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Admin | Command Center</title>
+    <title>Neon Admin | Secured Access</title>
     <style>
         :root {
             --neon-green: #00ff66;
@@ -27,7 +27,7 @@
         }
 
         .dashboard-layout {
-            display: grid;
+            display: none; /* HIDDEN BY DEFAULT */
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             width: 100%;
@@ -47,13 +47,20 @@
             max-height: 80vh;
         }
 
+        /* Login Specific Styling */
+        #loginGate {
+            margin: auto; 
+            max-width: 400px; 
+            width: 100%; 
+            margin-top: 10vh;
+        }
+
         h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; color: var(--neon-green); }
 
-        /* Left Side: Form */
         .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; }
         label { margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--neon-green); }
         
-        input[type="text"], textarea, input[type="file"] {
+        input[type="text"], input[type="password"], textarea, input[type="file"] {
             background: rgba(0,0,0,0.5);
             border: 1px solid var(--glass-border);
             color: white; padding: 1rem; border-radius: 10px;
@@ -79,8 +86,6 @@
             flex-direction: column;
             gap: 1rem;
         }
-
-        /* Custom Scrollbar for Neon Vibe */
         .post-list::-webkit-scrollbar { width: 8px; }
         .post-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
         .post-list::-webkit-scrollbar-thumb { background: var(--neon-green); border-radius: 10px; }
@@ -94,7 +99,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .post-item-info strong { color: white; display: block; margin-bottom: 0.3rem; }
         .post-item-info span { color: #aaa; font-size: 0.8rem; }
 
@@ -119,7 +123,21 @@
 </head>
 <body>
 
-    <div class="dashboard-layout">
+    <div id="loginGate" class="admin-card">
+        <h2>System Login</h2>
+        <div class="form-group">
+            <label>ID</label>
+            <input type="text" id="loginId" placeholder="Enter ID...">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="Enter Password...">
+        </div>
+        <button class="btn-submit" onclick="checkLogin()">Access Grid</button>
+        <div id="loginError" style="color: #ff4444; text-align: center; margin-top: 1rem;"></div>
+    </div>
+
+    <div class="dashboard-layout" id="dashboardArea">
         
         <div class="admin-card">
             <h1 id="form-title">Create Protocol</h1>
@@ -160,8 +178,34 @@
     </div>
 
     <script>
-        // Load posts when the admin page opens
-        window.onload = fetchAdminPosts;
+        // Check if already logged in this session
+        window.onload = () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                unlockDashboard();
+            }
+        };
+
+        // Validate Credentials
+        function checkLogin() {
+            const id = document.getElementById('loginId').value;
+            const pass = document.getElementById('loginPass').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (id === 'Admin' && pass === 'bsdk') {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('adminPass', pass); // Save for backend auth
+                unlockDashboard();
+            } else {
+                errorDiv.innerText = "ACCESS DENIED: Invalid Credentials.";
+            }
+        }
+
+        // Hide Login, Show Dashboard
+        function unlockDashboard() {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('dashboardArea').style.display = 'grid';
+            fetchAdminPosts(); // Load posts only after unlock
+        }
 
         async function fetchAdminPosts() {
             const listDiv = document.getElementById('postList');
@@ -170,7 +214,6 @@
                 const posts = await response.json();
                 
                 listDiv.innerHTML = '';
-                
                 if (posts.length === 0) {
                     listDiv.innerHTML = '<div style="text-align: center; color: #aaa;">No transmissions found.</div>';
                     return;
@@ -189,11 +232,10 @@
                     listDiv.innerHTML += postHTML;
                 });
             } catch (error) {
-                console.error("Grid error:", error); // Added this to help with any future debugging!
                 listDiv.innerHTML = '<div style="color: #ff4444; text-align: center;">Failed to load data.</div>';
             }
         }
-        // Triggered when clicking "Edit" in the right column
+
         function editPost(id, title, content, imageUrl) {
             document.getElementById('form-title').innerText = "Edit Protocol";
             document.getElementById('submitBtn').innerText = "Update Grid";
@@ -205,7 +247,6 @@
             document.getElementById('contentInput').value = content;
         }
 
-        // Cancels edit mode and resets the form to "Create" mode
         function resetForm() {
             document.getElementById('postForm').reset();
             document.getElementById('form-title').innerText = "Create Protocol";
@@ -219,6 +260,7 @@
         async function submitPost() {
             const statusDiv = document.getElementById('status');
             const submitBtn = document.getElementById('submitBtn');
+            const secretPass = sessionStorage.getItem('adminPass'); // Get saved password
             
             statusDiv.style.color = "white";
             statusDiv.innerText = "Transmitting data... Please wait.";
@@ -230,18 +272,19 @@
             const content = document.getElementById('contentInput').value;
 
             const formData = new FormData();
-            // If postId exists, tell the backend this is an update
             if (postId) formData.append('id', postId);
             formData.append('title', title);
             formData.append('content', content);
             if (fileInput) formData.append('image', fileInput);
 
             try {
-                // Determine if we use POST (create) or PUT (update)
                 const methodType = postId ? 'PUT' : 'POST';
 
                 const response = await fetch('/api/posts', {
                     method: methodType,
+                    headers: {
+                        'X-Admin-Password': secretPass // Send password to backend!
+                    },
                     body: formData
                 });
 
@@ -250,14 +293,14 @@
                     statusDiv.style.color = "#00ff66";
                     statusDiv.innerText = postId ? "Transmission Updated!" : "Transmission successful!";
                     resetForm();
-                    fetchAdminPosts(); // Refresh the list on the right
+                    fetchAdminPosts(); 
                 } else {
                     statusDiv.style.color = "#ff4444";
                     statusDiv.innerText = "Error: " + (result.error || "Failed to upload.");
                 }
             } catch (error) {
                 statusDiv.style.color = "#ff4444";
-                statusDiv.innerText = "Network error occurred. Is the backend running?";
+                statusDiv.innerText = "Network error occurred.";
             } finally {
                 submitBtn.disabled = false;
             }
