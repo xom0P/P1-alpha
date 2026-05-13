@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Admin | Secured Access</title>
+    <title>Admin | Secured Access</title>
     <style>
         :root {
             --neon-green: #00ff66;
@@ -185,13 +185,15 @@
             }
         };
 
-        // Validate Credentials
+// Validate Credentials
         function checkLogin() {
-            const id = document.getElementById('loginId').value;
+            // Added .toLowerCase() so it ignores capital letters
+            const id = document.getElementById('loginId').value.toLowerCase(); 
             const pass = document.getElementById('loginPass').value;
             const errorDiv = document.getElementById('loginError');
 
-            if (id === 'Admin' && pass === 'bsdk') {
+            // Now it checks against 'admin' instead of 'Admin'
+            if (id === 'admin' && pass === 'bsdk') {
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('adminPass', pass); // Save for backend auth
                 unlockDashboard();
